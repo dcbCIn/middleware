@@ -18,7 +18,7 @@ func TestJankenpoProxy_Play(t *testing.T) {
 		name string
 		jp   JankenpoProxy
 		args args
-		want int
+		want float64
 	}{
 		{"Teste 1",
 			jp,

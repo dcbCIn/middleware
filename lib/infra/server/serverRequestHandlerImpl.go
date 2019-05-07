@@ -37,13 +37,17 @@ func (s *ServerRequestHandlerImpl) Start() (err error) {
 	return nil
 }
 
-func (s *ServerRequestHandlerImpl) Stop() (err error) {
+func (s *ServerRequestHandlerImpl) CloseConnection() (err error) {
 	fmt.Println("ServerRequestHandler.Stop - Closing connection")
-	//err = s.connection.Close()
+	err = s.connection.Close()
 	if err != nil {
 		return err
 	}
 	fmt.Println("ServerRequestHandler.Stop - Connection closed")
+	return nil
+}
+
+func (s *ServerRequestHandlerImpl) StopServer() (err error) {
 	err = s.listener.Close()
 	if err != nil {
 		return err

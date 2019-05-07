@@ -20,15 +20,14 @@ func (inv InvokerImpl) Invoke() (err error) {
 		return err
 	}
 
-	err = s.Start()
-	if err != nil {
-		return err
-	}
-
-	defer s.Stop()
+	defer s.StopServer()
 	fmt.Println("Invoker.invoke - conexão aberta")
 
 	for {
+		err = s.Start()
+		if err != nil {
+			return err
+		}
 
 		fmt.Println("Invoker.invoke - Aguardando mensagem")
 
@@ -63,6 +62,7 @@ func (inv InvokerImpl) Invoke() (err error) {
 		}
 
 		fmt.Println("Invoker.invoke - Mensagem enviada")
+		s.CloseConnection()
 	}
 
 	return nil
