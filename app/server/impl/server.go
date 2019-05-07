@@ -3,6 +3,7 @@ package impl
 import (
 	"jankenpo/shared"
 	"middleware/lib/dist"
+	"middleware/lib/services/common"
 	"sync"
 )
 
@@ -24,6 +25,12 @@ const NAME = "jankenpo/mid/server"
 func StartJankenpoServer() {
 	var wg sync.WaitGroup
 	shared.PrintlnInfo(NAME, "Initializing server MyMiddleware")
+
+	lp := dist.LookupProxy{shared.NAME_SERVER_IP, shared.NAME_SERVER_PORT}
+	err := lp.Bind("jankenpo", common.ClientProxy{"127.0.0.1", shared.MID_PORT, 1500})
+	if err != nil {
+		shared.PrintlnError(NAME, "Error at lookup")
+	}
 
 	// escuta na porta tcp configurada
 	var inv dist.InvokerImpl

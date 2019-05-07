@@ -18,15 +18,6 @@ func (inv InvokerImpl) Invoke(port int, nameServer bool) (err error) {
 	defer s.StopServer()
 	shared.PrintlnInfo("InvokerImpl", "Invoker.invoke - conexão aberta")
 
-	if !nameServer {
-		lp := NewLookupProxy(shared.NAME_SERVER_IP, shared.NAME_SERVER_PORT)
-		cp := common.ClientProxy{"127.0.0.1", port, 2000}
-		err = lp.Bind("jankenpo", cp)
-		if err != nil {
-			return err
-		}
-	}
-
 	var lookup = common.Lookup{}
 	var jankenpo = remoteObjects.Jankenpo{}
 
