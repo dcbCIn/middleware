@@ -3,63 +3,69 @@ package server
 import (
 	"fmt"
 	"net"
-	"os"
 )
 
 type ServerRequestHandlerImpl struct {
-	Port string
-	conect net.Conn
+	Port       string
+	listener   net.Listener
+	connection net.Conn
 }
 
-func NewServerRequestHandlerImpl(port string) *ServerRequestHandlerImpl {
+func NewServerRequestHandlerImpl(port string) (srh *ServerRequestHandlerImpl, err error) {
+	srh = &ServerRequestHandlerImpl{Port: port}
 
-	fmt.Println("Servidor aguardando conexões...")
+	srh.listener, err = net.Listen("tcp", ":"+srh.Port)
 
-	// Ouvindo na porta 1234 via protocolo tcp/ip
-	ln, erro1 := net.Listen("tcp", ":"+ port)
-
-	if erro1 != nil {
-		fmt.Println(erro1)
-
-		/* Neste nosso exemplo vamos convencionar que a saída 3 está reservada para erros de conexão.
-		IMPORTANTE: defers não serão executados quando utilizamos os.Exit() e a saída será imediata */
-		os.Exit(3)
+	if err != nil {
+		return nil, err
 	}
 
-	// aceitando conexões
-	conexao, erro2 := ln.Accept()
-
-	if erro2 != nil {
-		fmt.Println(erro2)
-		os.Exit(3)
-	}
-
-	defer ln.Close()
-
-	fmt.Println("Conexão aceita...")
-
-	return &ServerRequestHandlerImpl{Port: port, conect: conexao}
+	return srh, nil
 }
 
-func (s ServerRequestHandlerImpl) Receive() []byte {
+func (s *ServerRequestHandlerImpl) Start() (err error) {
+	fmt.Println("ServerRequestHandler.Start - Aceitando conexões...")
 
-	msgFromClient := make([]byte, 1024)
+	s.connection, err = s.listener.Accept()
 
-	// recebe e desserializa request
-	n, erro3 := s.conect.Read(msgFromClient)
-	if erro3 != nil {
-		fmt.Println(erro3)
-		os.Exit(3)
+	if err != nil {
+		fmt.Println("ServerRequestHandler.Start - Erro ao abrir conexão")
+		return err
 	}
 
-	return msgFromClient[:n]
+	fmt.Println("ServerRequestHandler.Start - Conexão aceita...")
+	return nil
 }
 
-func (s ServerRequestHandlerImpl) Send(msg []byte) {
-	// Enviar mensagem processada de volta para o cliente
-	_, error := s.conect.Write(msg)
-	if error != nil{
-		fmt.Println(error)
-		os.Exit(3)
+func (s *ServerRequestHandlerImpl) Stop() (err error) {
+	fmt.Println("ServerRequestHandler.Stop - Closing connection")
+	//err = s.connection.Close()
+	if err != nil {
+		return err
 	}
+	fmt.Println("ServerRequestHandler.Stop - Connection closed")
+	err = s.listener.Close()
+	if err != nil {
+		return err
+	}
+	fmt.Println("ServerRequestHandler.Stop - Listener closed")
+	return nil
+}
+
+func (s *ServerRequestHandlerImpl) Receive() (msg []byte, err error) {
+	msg = make([]byte, 10240)
+	n, err := s.connection.Read(msg)
+	if err != nil {
+		return nil, err
+	}
+
+	return msg[:n], nil
+}
+
+func (s *ServerRequestHandlerImpl) Send(msg []byte) (err error) {
+	_, err = s.connection.Write(msg)
+	if err != nil {
+		return err
+	}
+	return nil
 }

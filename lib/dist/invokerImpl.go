@@ -5,34 +5,64 @@ import (
 	"middleware/lib/infra/server"
 )
 
-type InvokerImpl struct {}
+type InvokerImpl struct {
+	stop bool
+}
 
-func (InvokerImpl) Invoke() (err error) {
-	s := server.NewServerRequestHandlerImpl("1234")
+func (inv InvokerImpl) Stop() {
+	inv.stop = true
+}
 
-	fmt.Println("Chegou")
+func (inv InvokerImpl) Invoke() (err error) {
+	s, err := server.NewServerRequestHandlerImpl("1234")
+
+	if err != nil {
+		return err
+	}
+
+	err = s.Start()
+	if err != nil {
+		return err
+	}
+
+	defer s.Stop()
+	fmt.Println("Invoker.invoke - conexão aberta")
 
 	for {
 
-		msgToBeUnmarshalled := s.Receive()
+		fmt.Println("Invoker.invoke - Aguardando mensagem")
 
-		msgReturned, err := Unmarshall(msgToBeUnmarshalled)
+		msgToBeUnmarshalled, err := s.Receive()
+		if err != nil {
+			return err
+		}
+		fmt.Println("Invoker.invoke - Mensagem recebida")
+
+		msgReceived, err := Unmarshall(msgToBeUnmarshalled)
 
 		if err != nil {
 			return err
 		}
 
-		msgReturned.Body.ReplyHeader = ReplyHeader{}
-		msgReturned.Body.ReplyBody = nil // todo implementar chamada do objeto remoto
+		fmt.Println("Invoker.invoke - Mensagem unmarshalled")
+
+		msgReceived.Body.ReplyHeader = ReplyHeader{"", msgReceived.Body.RequestHeader.RequestId, 1}
+		msgReceived.Body.ReplyBody = 1 // todo implementar chamada do objeto remoto
 
 		var bytes []byte
-		bytes, err = Marshall(msgReturned)
-
+		bytes, err = Marshall(msgReceived)
 		if err != nil {
 			return err
 		}
 
-		s.Send(bytes)
+		fmt.Println("Invoker.invoke - Retorno marshalled")
+
+		err = s.Send(bytes)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("Invoker.invoke - Mensagem enviada")
 	}
 
 	return nil

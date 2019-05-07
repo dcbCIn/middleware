@@ -1,5 +1,6 @@
 package dist
 
 type Invoker interface {
-	Invoker()
+	Invoker() (err error)
+	Stop()
 }

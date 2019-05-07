@@ -8,39 +8,39 @@ import (
 )
 
 type ClientRequestHandlerImpl struct {
-	Host string
-	Port int
-	conect net.Conn
+	Host       string
+	Port       int
+	connection net.Conn
 }
 
 func NewClientRequestHandlerImpl(host string, port int) *ClientRequestHandlerImpl {
 
 	address := host + ":" + strconv.Itoa(port)
 
-	conexao, erro1 := net.Dial("tcp", address)
+	connection, err := net.Dial("tcp", address)
 
-	if erro1 != nil {
-		fmt.Println(erro1)
-		os.Exit(3)
-	}
-
-	return &ClientRequestHandlerImpl{Host: host, Port: port, conect: conexao}
-}
-
-func (crh ClientRequestHandlerImpl) Receive() (msg []byte) {
-	_, err := crh.conect.Read(msg)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(3)
 	}
 
-	return msg
+	return &ClientRequestHandlerImpl{Host: host, Port: port, connection: connection}
 }
 
-func (crh ClientRequestHandlerImpl) Send(msg []byte) {
-	_, erro2 := crh.conect.Write(msg)
-	if erro2 != nil {
-		fmt.Println(erro2)
-		os.Exit(3)
+func (crh *ClientRequestHandlerImpl) Receive() (msg []byte, err error) {
+	msg = make([]byte, 10240)
+	n, err := crh.connection.Read(msg)
+	if err != nil {
+		return nil, err
 	}
+
+	return msg[:n], nil
+}
+
+func (crh *ClientRequestHandlerImpl) Send(msg []byte) (err error) {
+	_, err = crh.connection.Write(msg)
+	if err != nil {
+		return err
+	}
+	return nil
 }

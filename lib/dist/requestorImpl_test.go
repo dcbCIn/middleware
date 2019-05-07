@@ -3,11 +3,12 @@ package dist
 import (
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestRequestorImpl_Invoke(t *testing.T) {
 	type args struct {
-		inv InvocationImpl
+		inv Invocation
 	}
 	tests := []struct {
 		name string
@@ -17,38 +18,47 @@ func TestRequestorImpl_Invoke(t *testing.T) {
 	}{
 		{"Teste 1",
 			RequestorImpl{},
-			args{InvocationImpl{1000, "127.0.0.1", 1234, "play", []interface{}{"P", "T"}}},
-			TerminationImpl{},
+			args{Invocation{1000, "127.0.0.1", 1234, "play", []interface{}{"P", "T"}}},
+			Termination{},
 		},
 		{"Teste 2",
 			RequestorImpl{},
-			args{InvocationImpl{1000, "127.0.0.1", 1234, "play", []interface{}{"P", "P"}}},
-			TerminationImpl{},
+			args{Invocation{1000, "127.0.0.1", 1234, "play", []interface{}{"P", "P"}}},
+			Termination{},
 		},
 		{"Teste 3",
 			RequestorImpl{},
-			args{InvocationImpl{1000, "127.0.0.1", 1234, "play", []interface{}{"T", "P"}}},
-			TerminationImpl{},
+			args{Invocation{1000, "127.0.0.1", 1234, "play", []interface{}{"T", "P"}}},
+			Termination{},
 		},
 	}
 
-	for _, tt := range tests {
+	inv := InvokerImpl{}
+	go inv.Invoke()
+	defer inv.Stop()
 
+	time.Sleep(1 * time.Second)
+
+	//var wg sync.WaitGroup
+	for _, tt := range tests {
+		//wg.Add(1)
 		t.Run(tt.name, func(t *testing.T) {
 
 			got, err := tt.r.Invoke(tt.args.inv)
 
 			if err != nil {
+				//wg.Done()
 				t.Errorf("RequestorImpl.Invoke() = Error %v", err)
 			}
 
 			if !reflect.DeepEqual(got, tt.want) {
+				//wg.Done()
 				t.Errorf("RequestorImpl.Invoke() = %v, want %v", got, tt.want)
 			}
-
+			//wg.Done()
 		})
-
 	}
+	//wg.Wait()
 }
 
 /*func TestInvoker(t *testing.T) {

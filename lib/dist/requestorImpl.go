@@ -4,73 +4,19 @@ import (
 	"middleware/lib/infra/client"
 )
 
-// Implements Invocation
-type InvocationImpl struct {
-	objectId      int
-	ipAddress     string
-	portNumber    int
-	operationName string
-	parameters    []interface{}
-}
-
-func (i InvocationImpl) ObjectId() int {
-	return i.objectId
-}
-
-func (i InvocationImpl) SetObjectId(objectId int) {
-	i.objectId = objectId
-}
-
-func (i InvocationImpl) IpAddress() string {
-	return i.ipAddress
-}
-
-func (i InvocationImpl) SetIpAddress(ipAddress string) {
-	i.ipAddress = ipAddress
-}
-
-func (i InvocationImpl) PortNumber() int {
-	return i.portNumber
-}
-
-func (i InvocationImpl) SetPortNumber(portNumber int) {
-	i.portNumber = portNumber
-}
-
-func (i InvocationImpl) OperationName() string {
-	return i.operationName
-}
-
-func (i InvocationImpl) SetOperationName(operationName string) {
-	i.operationName = operationName
-}
-
-func (i InvocationImpl) Parameters() []interface{} {
-	return i.parameters
-}
-
-func (i InvocationImpl) SetParameters(parameters []interface{}) {
-	i.parameters = parameters
-}
-
-// Implements Termination
-type TerminationImpl struct {
-	result interface{}
-}
-
-func (t TerminationImpl) Result() interface{} {
-	panic("implement me")
-}
+/*func NewInvocationImpl(objectId int, ipAddress string, portNumber int, operationName string, parameters []interface{}) *InvocationImpl {
+	return &InvocationImpl{objectId: objectId, ipAddress: ipAddress, portNumber: portNumber, operationName: operationName, parameters: parameters}
+}*/
 
 // Implements requestor
 type RequestorImpl struct{}
 
 func (RequestorImpl) Invoke(inv Invocation) (t Termination, err error) {
 
-	crh := client.NewClientRequestHandlerImpl(inv.IpAddress(), inv.PortNumber())
+	crh := client.NewClientRequestHandlerImpl(inv.IpAddress, inv.PortNumber)
 
-	requestHeader := RequestHeader{inv.IpAddress(), inv.ObjectId(), true, inv.ObjectId(), inv.OperationName()}
-	requestBody := RequestBody{inv.Parameters()}
+	requestHeader := RequestHeader{inv.IpAddress, inv.ObjectId, true, inv.ObjectId, inv.OperationName}
+	requestBody := RequestBody{inv.Parameters}
 
 	msg := Message{
 		Header{"GIOP", 1, true, 0, 0},
@@ -79,18 +25,25 @@ func (RequestorImpl) Invoke(inv Invocation) (t Termination, err error) {
 	var bytes []byte
 	bytes, err = Marshall(msg)
 	if err != nil {
-		return nil, err
+		return Termination{}, err
 	}
 
-	crh.Send(bytes)
+	err = crh.Send(bytes)
+	if err != nil {
+		return Termination{}, err
+	}
 
 	var msgReturned Message
-	msgReturned, err = Unmarshall(crh.Receive())
+	msgToBeUnmarshalled, err := crh.Receive()
 	if err != nil {
-		return nil, err
+		return Termination{}, err
+	}
+	msgReturned, err = Unmarshall(msgToBeUnmarshalled)
+	if err != nil {
+		return Termination{}, err
 	}
 
-	t = TerminationImpl{msgReturned.Body.ReplyBody}
+	t = Termination{msgReturned.Body.ReplyBody}
 
 	return t, err
 }
