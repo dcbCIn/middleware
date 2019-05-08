@@ -1,7 +1,7 @@
 package dist
 
 import (
-	"fmt"
+	"jankenpo/shared"
 	"middleware/lib/infra/client"
 )
 
@@ -43,7 +43,7 @@ func (RequestorImpl) Invoke(inv Invocation) (t Termination, err error) {
 	if err != nil {
 		return Termination{}, err
 	}
-	fmt.Println("RequestorImpl.Invoke - Reply recebido e unmarshalled")
+	shared.PrintlnInfo("RequestorImpl", "RequestorImpl.Invoke - Reply recebido e unmarshalled")
 	t = Termination{msgReturned.Body.ReplyBody}
 
 	return t, err

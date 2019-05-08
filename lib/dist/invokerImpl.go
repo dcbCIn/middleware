@@ -1,8 +1,8 @@
 package dist
 
 import (
-	"fmt"
-	"middleware/app/remoteObjects"
+	"jankenpo/shared"
+	"middleware/app/server/remoteObjects"
 	"middleware/lib/infra/server"
 )
 
@@ -14,15 +14,15 @@ func (inv InvokerImpl) Stop() {
 	inv.stop = true
 }
 
-func (inv InvokerImpl) Invoke() (err error) {
-	s, err := server.NewServerRequestHandlerImpl("1234")
+func (inv InvokerImpl) Invoke(port int) (err error) {
+	s, err := server.NewServerRequestHandlerImpl(port)
 
 	if err != nil {
 		return err
 	}
 
 	defer s.StopServer()
-	fmt.Println("Invoker.invoke - conexão aberta")
+	shared.PrintlnInfo("InvokerImpl", "Invoker.invoke - conexão aberta")
 
 	var jankenpo = remoteObjects.Jankenpo{}
 
@@ -32,13 +32,13 @@ func (inv InvokerImpl) Invoke() (err error) {
 			return err
 		}
 
-		fmt.Println("Invoker.invoke - Aguardando mensagem")
+		shared.PrintlnInfo("InvokerImpl", "Invoker.invoke - Aguardando mensagem")
 
 		msgToBeUnmarshalled, err := s.Receive()
 		if err != nil {
 			return err
 		}
-		fmt.Println("Invoker.invoke - Mensagem recebida")
+		shared.PrintlnInfo("InvokerImpl", "Invoker.invoke - Mensagem recebida")
 
 		msgReceived, err := Unmarshall(msgToBeUnmarshalled)
 
@@ -46,7 +46,7 @@ func (inv InvokerImpl) Invoke() (err error) {
 			return err
 		}
 
-		fmt.Println("Invoker.invoke - Mensagem unmarshalled")
+		shared.PrintlnInfo("InvokerImpl", "Invoker.invoke - Mensagem unmarshalled")
 
 		msgReceived.Body.ReplyHeader = ReplyHeader{"", msgReceived.Body.RequestHeader.RequestId, 1}
 		player1Move := msgReceived.Body.RequestBody.Parameters[0].(string)
@@ -59,14 +59,14 @@ func (inv InvokerImpl) Invoke() (err error) {
 			return err
 		}
 
-		fmt.Println("Invoker.invoke - Retorno marshalled")
+		shared.PrintlnInfo("InvokerImpl", "Invoker.invoke - Retorno marshalled")
 
 		err = s.Send(bytes)
 		if err != nil {
 			return err
 		}
 
-		fmt.Println("Invoker.invoke - Mensagem enviada")
+		shared.PrintlnInfo("InvokerImpl", "Invoker.invoke - Mensagem enviada")
 		err = s.CloseConnection()
 		if err != nil {
 			return err

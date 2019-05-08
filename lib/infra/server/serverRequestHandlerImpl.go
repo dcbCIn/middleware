@@ -1,20 +1,21 @@
 package server
 
 import (
-	"fmt"
+	"jankenpo/shared"
 	"net"
+	"strconv"
 )
 
 type ServerRequestHandlerImpl struct {
-	Port       string
+	Port       int
 	listener   net.Listener
 	connection net.Conn
 }
 
-func NewServerRequestHandlerImpl(port string) (srh *ServerRequestHandlerImpl, err error) {
+func NewServerRequestHandlerImpl(port int) (srh *ServerRequestHandlerImpl, err error) {
 	srh = &ServerRequestHandlerImpl{Port: port}
 
-	srh.listener, err = net.Listen("tcp", ":"+srh.Port)
+	srh.listener, err = net.Listen("tcp", ":"+strconv.Itoa(srh.Port))
 
 	if err != nil {
 		return nil, err
@@ -24,26 +25,26 @@ func NewServerRequestHandlerImpl(port string) (srh *ServerRequestHandlerImpl, er
 }
 
 func (s *ServerRequestHandlerImpl) Start() (err error) {
-	fmt.Println("ServerRequestHandler.Start - Aceitando conexões...")
+	shared.PrintlnInfo("ServerRequestHandler", "Aceitando conexões...")
 
 	s.connection, err = s.listener.Accept()
 
 	if err != nil {
-		fmt.Println("ServerRequestHandler.Start - Erro ao abrir conexão")
+		shared.PrintlnInfo("ServerRequestHandler", "Erro ao abrir conexão")
 		return err
 	}
 
-	fmt.Println("ServerRequestHandler.Start - Conexão aceita...")
+	shared.PrintlnInfo("ServerRequestHandler", "Conexão aceita...")
 	return nil
 }
 
 func (s *ServerRequestHandlerImpl) CloseConnection() (err error) {
-	fmt.Println("ServerRequestHandler.Stop - Closing connection")
+	shared.PrintlnInfo("ServerRequestHandler", "ServerRequestHandler.Stop - Closing connection")
 	err = s.connection.Close()
 	if err != nil {
 		return err
 	}
-	fmt.Println("ServerRequestHandler.Stop - Connection closed")
+	shared.PrintlnInfo("ServerRequestHandler", "ServerRequestHandler.Stop - Connection closed")
 	return nil
 }
 
@@ -52,7 +53,7 @@ func (s *ServerRequestHandlerImpl) StopServer() (err error) {
 	if err != nil {
 		return err
 	}
-	fmt.Println("ServerRequestHandler.Stop - Listener closed")
+	shared.PrintlnInfo("ServerRequestHandler", "ServerRequestHandler.Stop - Listener closed")
 	return nil
 }
 

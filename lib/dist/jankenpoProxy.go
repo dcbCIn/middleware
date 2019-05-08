@@ -7,8 +7,7 @@ type JankenpoProxy struct {
 }
 
 func NewJankenpoProxy(host string, port int, objectId int) *JankenpoProxy {
-	jp := JankenpoProxy{host, port, objectId}
-	return &jp
+	return &JankenpoProxy{host, port, objectId}
 }
 
 func (jp JankenpoProxy) Play(player1Move, player2Move string) (float64, error) {
