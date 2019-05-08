@@ -48,10 +48,13 @@ func (inv InvokerImpl) Invoke(port int) (err error) {
 
 		shared.PrintlnInfo("InvokerImpl", "Invoker.invoke - Mensagem unmarshalled")
 
-		msgReceived.Body.ReplyHeader = ReplyHeader{"", msgReceived.Body.RequestHeader.RequestId, 1}
-		player1Move := msgReceived.Body.RequestBody.Parameters[0].(string)
-		player2Move := msgReceived.Body.RequestBody.Parameters[1].(string)
-		msgReceived.Body.ReplyBody = jankenpo.Process(player1Move, player2Move)
+		switch msgReceived.Body.RequestHeader.Operation {
+		case "jankenpo.play":
+			player1Move := msgReceived.Body.RequestBody.Parameters[0].(string)
+			player2Move := msgReceived.Body.RequestBody.Parameters[1].(string)
+			msgReceived.Body.ReplyHeader = ReplyHeader{"", msgReceived.Body.RequestHeader.RequestId, 1}
+			msgReceived.Body.ReplyBody = jankenpo.Process(player1Move, player2Move)
+		}
 
 		var bytes []byte
 		bytes, err = Marshall(msgReceived)

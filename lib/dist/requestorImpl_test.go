@@ -18,23 +18,23 @@ func TestRequestorImpl_Invoke(t *testing.T) {
 	}{
 		{"Teste 1",
 			RequestorImpl{},
-			args{Invocation{1000, "127.0.0.1", 1234, "play", []interface{}{"P", "T"}}},
-			Termination{},
+			args{Invocation{1000, "127.0.0.1", 1234, "jankenpo.play", []interface{}{"P", "T"}}},
+			Termination{float64(1)},
 		},
 		{"Teste 2",
 			RequestorImpl{},
-			args{Invocation{1000, "127.0.0.1", 1234, "play", []interface{}{"P", "P"}}},
-			Termination{},
+			args{Invocation{1000, "127.0.0.1", 1234, "jankenpo.play", []interface{}{"P", "P"}}},
+			Termination{float64(0)},
 		},
 		{"Teste 3",
 			RequestorImpl{},
-			args{Invocation{1000, "127.0.0.1", 1234, "play", []interface{}{"T", "P"}}},
-			Termination{},
+			args{Invocation{1000, "127.0.0.1", 1234, "jankenpo.play", []interface{}{"T", "P"}}},
+			Termination{float64(2)},
 		},
 	}
 
 	inv := InvokerImpl{}
-	go inv.Invoke()
+	go inv.Invoke(1234)
 	defer inv.Stop()
 
 	time.Sleep(1 * time.Second)
