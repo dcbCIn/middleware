@@ -43,6 +43,9 @@ func (RequestorImpl) Invoke(inv Invocation) (t Termination, err error) {
 	if err != nil {
 		return Termination{}, err
 	}
+
+	// Todo check if replyStatus of the message is valid
+
 	shared.PrintlnInfo("RequestorImpl", "RequestorImpl.Invoke - Reply recebido e unmarshalled")
 	t = Termination{msgReturned.Body.ReplyBody}
 

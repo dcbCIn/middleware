@@ -8,7 +8,7 @@ type LookupProxy struct {
 }
 
 func (lp LookupProxy) Bind(sn string, cp common.ClientProxy) (err error) {
-	inv := *NewInvocation(0, lp.Host, lp.Port, "lookup.Bind", []interface{}{sn, cp})
+	inv := *NewInvocation(0, lp.Host, lp.Port, "Bind", []interface{}{sn, cp})
 	requestor := RequestorImpl{}
 	_, err = requestor.Invoke(inv)
 	if err != nil {
@@ -18,7 +18,7 @@ func (lp LookupProxy) Bind(sn string, cp common.ClientProxy) (err error) {
 }
 
 func (lp LookupProxy) Lookup(serviceName string) (cp common.ClientProxy, err error) {
-	inv := *NewInvocation(0, lp.Host, lp.Port, "lookup.Lookup", []interface{}{serviceName})
+	inv := *NewInvocation(0, lp.Host, lp.Port, "Lookup", []interface{}{serviceName})
 	requestor := RequestorImpl{}
 	termination, err := requestor.Invoke(inv)
 	if err != nil {

@@ -12,7 +12,7 @@ func main() {
 
 	// escuta na porta tcp configurada
 	var inv dist.InvokerImpl
-	go inv.Invoke(shared.NAME_SERVER_PORT, true)
+	go inv.Invoke(shared.NAME_SERVER_PORT)
 	wg.Add(1)
 
 	/*for idx := 0; idx < shared.CONECTIONS; idx++ {

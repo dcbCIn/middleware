@@ -11,7 +11,7 @@ func NewJankenpoProxy(host string, port int, objectId int) *JankenpoProxy {
 }
 
 func (jp JankenpoProxy) Play(player1Move, player2Move string) (float64, error) {
-	inv := *NewInvocation(jp.objectId, jp.Host, jp.Port, "jankenpo.Play", []interface{}{player1Move, player2Move})
+	inv := *NewInvocation(jp.objectId, jp.Host, jp.Port, "Play", []interface{}{player1Move, player2Move})
 	requestor := RequestorImpl{}
 	termination, err := requestor.Invoke(inv)
 	if err != nil {

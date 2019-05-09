@@ -10,7 +10,7 @@ import (
 type InvokerImpl struct {
 }
 
-func (inv InvokerImpl) Invoke(port int, nameServer bool) (err error) {
+func (inv InvokerImpl) Invoke(port int) (err error) {
 	s, err := server.NewServerRequestHandlerImpl(port)
 	if err != nil {
 		return err
@@ -43,22 +43,25 @@ func (inv InvokerImpl) Invoke(port int, nameServer bool) (err error) {
 
 		shared.PrintlnInfo("InvokerImpl", "Invoker.invoke - Mensagem unmarshalled")
 
-		switch msgReceived.Body.RequestHeader.Operation {
-		case "jankenpo.Play":
+		switch msgReceived.Body.RequestHeader.Operation { // Todo add the objectId to demultiplex
+		case "Play":
 			player1Move := msgReceived.Body.RequestBody.Parameters[0].(string)
 			player2Move := msgReceived.Body.RequestBody.Parameters[1].(string)
 			msgReceived.Body.ReplyHeader = ReplyHeader{"", msgReceived.Body.RequestHeader.RequestId, 1}
 			msgReceived.Body.ReplyBody, _ = jankenpo.Play(player1Move, player2Move)
-		case "lookup.Bind":
+		case "Bind":
 			serviceName := msgReceived.Body.RequestBody.Parameters[0].(string)
 			clientProxyMap := msgReceived.Body.RequestBody.Parameters[1].(map[string]interface{})
 			clientProxy := common.ClientProxy{clientProxyMap["Ip"].(string), int(clientProxyMap["Port"].(float64)), int(clientProxyMap["ObjectId"].(float64))}
 			msgReceived.Body.ReplyHeader = ReplyHeader{"", msgReceived.Body.RequestHeader.RequestId, 1}
 			msgReceived.Body.ReplyBody = lookup.Bind(serviceName, clientProxy)
-		case "lookup.Lookup":
+		case "Lookup":
 			serviceName := msgReceived.Body.RequestBody.Parameters[0].(string)
 			msgReceived.Body.ReplyHeader = ReplyHeader{"", msgReceived.Body.RequestHeader.RequestId, 1}
 			msgReceived.Body.ReplyBody, _ = lookup.Lookup(serviceName)
+		default: // Todo check if default is called if already defined above
+			msgReceived.Body.ReplyHeader = ReplyHeader{"", msgReceived.Body.RequestHeader.RequestId, 0}
+			msgReceived.Body.ReplyBody = nil
 		}
 
 		var bytes []byte

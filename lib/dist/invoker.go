@@ -1,6 +1,6 @@
 package dist
 
 type Invoker interface {
-	Invoke(port int, nameServer bool) (err error)
+	Invoke(port int) (err error)
 	//StopServer()
 }
