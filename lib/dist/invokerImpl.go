@@ -57,7 +57,7 @@ func (inv InvokerImpl) Invoke(port int, nameServer bool) (err error) {
 			player1Move := msgReceived.Body.RequestBody.Parameters[0].(string)
 			player2Move := msgReceived.Body.RequestBody.Parameters[1].(string)
 			msgReceived.Body.ReplyHeader = ReplyHeader{"", msgReceived.Body.RequestHeader.RequestId, 1}
-			msgReceived.Body.ReplyBody = jankenpo.Play(player1Move, player2Move)
+			msgReceived.Body.ReplyBody, _ = jankenpo.Play(player1Move, player2Move)
 		case "lookup.Bind":
 			serviceName := msgReceived.Body.RequestBody.Parameters[0].(string)
 			clientProxyMap := msgReceived.Body.RequestBody.Parameters[1].(map[string]interface{})
