@@ -16,11 +16,9 @@ func NewServerRequestHandlerImpl(port int) (srh *ServerRequestHandlerImpl, err e
 	srh = &ServerRequestHandlerImpl{Port: port}
 
 	srh.listener, err = net.Listen("tcp", ":"+strconv.Itoa(srh.Port))
-
 	if err != nil {
 		return nil, err
 	}
-
 	return srh, nil
 }
 

@@ -38,8 +38,8 @@ func TestJankenpoProxy_Play(t *testing.T) {
 	}
 
 	inv := InvokerImpl{}
-	go inv.Invoke(1234)
-	defer inv.Stop()
+	go inv.Invoke(1234, false)
+	//defer inv.Stop()
 
 	time.Sleep(1 * time.Second)
 

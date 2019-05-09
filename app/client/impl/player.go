@@ -9,16 +9,21 @@ import (
 const NAME = "jankenpo/mid/client"
 
 func PlayJanKenPo(auto bool) (elapsed time.Duration) {
-	var player1Move, player2Move string
-	var jp dist.JankenpoProxy
+	lp := dist.LookupProxy{shared.NAME_SERVER_IP, shared.NAME_SERVER_PORT}
+	cp, err := lp.Lookup("jankenpo")
+	if err != nil {
+		shared.PrintlnError(NAME, "Error at lookup")
+	}
 
+	var jp dist.JankenpoProxy
 	// connect to server
 	//rpc.ConnectToServer("localhost", strconv.Itoa(shared.RPC_PORT))
-	jp = *dist.NewJankenpoProxy("localhost", shared.MID_PORT, 100)
+	jp = *dist.NewJankenpoProxy(cp.Ip, cp.Port, cp.ObjectId)
 
 	shared.PrintlnInfo(NAME, "Connected successfully")
 	shared.PrintlnInfo(NAME)
 
+	var player1Move, player2Move string
 	// loop
 	start := time.Now()
 	for i := 0; i < shared.SAMPLE_SIZE; i++ {

@@ -30,10 +30,8 @@ func StartJankenpoServer() {
 	//inv.StartServer("", strconv.Itoa(shared.RPC_PORT))
 	//defer inv.StopServer()
 
-	go inv.Invoke(shared.MID_PORT)
+	go inv.Invoke(shared.MID_PORT, false)
 	wg.Add(1)
-	defer inv.Stop()
-
 	/*for idx := 0; idx < shared.CONECTIONS; idx++ {
 		wg.Add(1)
 		go func(i int) {

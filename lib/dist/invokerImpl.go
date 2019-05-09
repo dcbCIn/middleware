@@ -4,26 +4,30 @@ import (
 	"jankenpo/shared"
 	"middleware/app/server/remoteObjects"
 	"middleware/lib/infra/server"
+	"middleware/lib/services/common"
 )
 
 type InvokerImpl struct {
-	stop bool
 }
 
-func (inv InvokerImpl) Stop() {
-	inv.stop = true
-}
-
-func (inv InvokerImpl) Invoke(port int) (err error) {
+func (inv InvokerImpl) Invoke(port int, nameServer bool) (err error) {
 	s, err := server.NewServerRequestHandlerImpl(port)
-
 	if err != nil {
 		return err
 	}
-
 	defer s.StopServer()
 	shared.PrintlnInfo("InvokerImpl", "Invoker.invoke - conexão aberta")
 
+	if !nameServer {
+		lp := NewLookupProxy(shared.NAME_SERVER_IP, shared.NAME_SERVER_PORT)
+		cp := common.ClientProxy{"127.0.0.1", port, 2000}
+		err = lp.Bind("jankenpo", cp)
+		if err != nil {
+			return err
+		}
+	}
+
+	var lookup = common.Lookup{}
 	var jankenpo = remoteObjects.Jankenpo{}
 
 	for {
@@ -49,11 +53,21 @@ func (inv InvokerImpl) Invoke(port int) (err error) {
 		shared.PrintlnInfo("InvokerImpl", "Invoker.invoke - Mensagem unmarshalled")
 
 		switch msgReceived.Body.RequestHeader.Operation {
-		case "jankenpo.play":
+		case "jankenpo.Play":
 			player1Move := msgReceived.Body.RequestBody.Parameters[0].(string)
 			player2Move := msgReceived.Body.RequestBody.Parameters[1].(string)
 			msgReceived.Body.ReplyHeader = ReplyHeader{"", msgReceived.Body.RequestHeader.RequestId, 1}
-			msgReceived.Body.ReplyBody = jankenpo.Process(player1Move, player2Move)
+			msgReceived.Body.ReplyBody = jankenpo.Play(player1Move, player2Move)
+		case "lookup.Bind":
+			serviceName := msgReceived.Body.RequestBody.Parameters[0].(string)
+			clientProxyMap := msgReceived.Body.RequestBody.Parameters[1].(map[string]interface{})
+			clientProxy := common.ClientProxy{clientProxyMap["Ip"].(string), int(clientProxyMap["Port"].(float64)), int(clientProxyMap["ObjectId"].(float64))}
+			msgReceived.Body.ReplyHeader = ReplyHeader{"", msgReceived.Body.RequestHeader.RequestId, 1}
+			msgReceived.Body.ReplyBody = lookup.Bind(serviceName, clientProxy)
+		case "lookup.Lookup":
+			serviceName := msgReceived.Body.RequestBody.Parameters[0].(string)
+			msgReceived.Body.ReplyHeader = ReplyHeader{"", msgReceived.Body.RequestHeader.RequestId, 1}
+			msgReceived.Body.ReplyBody, _ = lookup.Lookup(serviceName)
 		}
 
 		var bytes []byte

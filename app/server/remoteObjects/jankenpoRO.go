@@ -3,7 +3,7 @@ package remoteObjects
 type Jankenpo struct {
 }
 
-func (Jankenpo) Process(player1Move, player2Move string) int {
+func (Jankenpo) Play(player1Move, player2Move string) int {
 	possibilities := []string{"P", "A", "T"}
 
 	if !inArray(player1Move, possibilities) {
