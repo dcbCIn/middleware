@@ -14,7 +14,6 @@ type ClientRequestHandlerImpl struct {
 }
 
 func NewClientRequestHandlerImpl(host string, port int) *ClientRequestHandlerImpl {
-
 	address := host + ":" + strconv.Itoa(port)
 
 	connection, err := net.Dial("tcp", address)

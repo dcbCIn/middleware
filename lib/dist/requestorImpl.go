@@ -5,16 +5,16 @@ import (
 	"middleware/lib/infra/client"
 )
 
-/*func NewInvocationImpl(objectId int, ipAddress string, portNumber int, operationName string, parameters []interface{}) *InvocationImpl {
-	return &InvocationImpl{objectId: objectId, ipAddress: ipAddress, portNumber: portNumber, operationName: operationName, parameters: parameters}
-}*/
-
 // Implements requestor
-type RequestorImpl struct{}
+type RequestorImpl struct {
+	crh client.ClientRequestHandlerImpl
+}
 
-func (RequestorImpl) Invoke(inv Invocation) (t Termination, err error) {
+func NewRequestorImpl(ipAddress string, portNumber int) *RequestorImpl {
+	return &RequestorImpl{*client.NewClientRequestHandlerImpl(ipAddress, portNumber)}
+}
 
-	crh := client.NewClientRequestHandlerImpl(inv.IpAddress, inv.PortNumber)
+func (r RequestorImpl) Invoke(inv Invocation) (t Termination, err error) {
 
 	requestHeader := RequestHeader{inv.IpAddress, inv.ObjectId, true, inv.ObjectId, inv.OperationName}
 	requestBody := RequestBody{inv.Parameters}
@@ -29,13 +29,13 @@ func (RequestorImpl) Invoke(inv Invocation) (t Termination, err error) {
 		return Termination{}, err
 	}
 
-	err = crh.Send(bytes)
+	err = r.crh.Send(bytes)
 	if err != nil {
 		return Termination{}, err
 	}
 
 	var msgReturned Message
-	msgToBeUnmarshalled, err := crh.Receive()
+	msgToBeUnmarshalled, err := r.crh.Receive()
 	if err != nil {
 		return Termination{}, err
 	}
