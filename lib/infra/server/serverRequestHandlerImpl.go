@@ -1,7 +1,7 @@
 package server
 
 import (
-	"jankenpo/shared"
+	"middleware/lib"
 	"net"
 	"strconv"
 )
@@ -23,26 +23,26 @@ func NewServerRequestHandlerImpl(port int) (srh *ServerRequestHandlerImpl, err e
 }
 
 func (s *ServerRequestHandlerImpl) Start() (err error) {
-	shared.PrintlnInfo("ServerRequestHandler", "Aceitando conexões...")
+	lib.PrintlnInfo("ServerRequestHandler", "Aceitando conexões...")
 
 	s.connection, err = s.listener.Accept()
 
 	if err != nil {
-		shared.PrintlnInfo("ServerRequestHandler", "Erro ao abrir conexão")
+		lib.PrintlnInfo("ServerRequestHandler", "Erro ao abrir conexão")
 		return err
 	}
 
-	shared.PrintlnInfo("ServerRequestHandler", "Conexão aceita...")
+	lib.PrintlnInfo("ServerRequestHandler", "Conexão aceita...")
 	return nil
 }
 
 func (s *ServerRequestHandlerImpl) CloseConnection() (err error) {
-	shared.PrintlnInfo("ServerRequestHandler", "ServerRequestHandler.Stop - Closing connection")
+	lib.PrintlnInfo("ServerRequestHandler", "ServerRequestHandler.Stop - Closing connection")
 	err = s.connection.Close()
 	if err != nil {
 		return err
 	}
-	shared.PrintlnInfo("ServerRequestHandler", "ServerRequestHandler.Stop - Connection closed")
+	lib.PrintlnInfo("ServerRequestHandler", "ServerRequestHandler.Stop - Connection closed")
 	return nil
 }
 
@@ -51,7 +51,7 @@ func (s *ServerRequestHandlerImpl) StopServer() (err error) {
 	if err != nil {
 		return err
 	}
-	shared.PrintlnInfo("ServerRequestHandler", "ServerRequestHandler.Stop - Listener closed")
+	lib.PrintlnInfo("ServerRequestHandler", "ServerRequestHandler.Stop - Listener closed")
 	return nil
 }
 

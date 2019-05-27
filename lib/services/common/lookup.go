@@ -1,6 +1,8 @@
 package common
 
-import "jankenpo/shared"
+import (
+	"middleware/lib"
+)
 
 type ClientProxy struct {
 	Ip   string
@@ -25,13 +27,13 @@ type Lookup struct {
 }
 
 func (l *Lookup) Bind(sn string, cp ClientProxy) (err error) {
-	shared.PrintlnInfo("Lookup", "Service bind =", sn)
+	lib.PrintlnInfo("Lookup", "Service bind =", sn)
 	l.services = append(l.services, NamingRecord{sn, cp})
 	return nil
 }
 
 func (l Lookup) Lookup(serviceName string) (cp ClientProxy, err error) {
-	shared.PrintlnInfo("Lookup", "Service lookup =", serviceName)
+	lib.PrintlnInfo("Lookup", "Service lookup =", serviceName)
 	for _, nr := range l.services {
 		return nr.clientProxy, nil
 	}

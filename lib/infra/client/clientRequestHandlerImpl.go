@@ -43,3 +43,7 @@ func (crh *ClientRequestHandlerImpl) Send(msg []byte) (err error) {
 	}
 	return nil
 }
+
+func (crh *ClientRequestHandlerImpl) Close() error {
+	return crh.connection.Close()
+}

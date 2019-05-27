@@ -1,19 +1,24 @@
 package dist
 
 import (
+	"github.com/mitchellh/mapstructure"
 	"middleware/lib"
 	"middleware/lib/services/common"
 )
 
 type LookupProxy struct {
-	Host string
-	Port int
+	Host      string
+	Port      int
+	requestor Requestor
+}
+
+func NewLookupProxy(host string, port int) *LookupProxy {
+	return &LookupProxy{host, port, NewRequestorImpl(host, port)}
 }
 
 func (lp LookupProxy) Bind(sn string, cp common.ClientProxy) (err error) {
 	inv := *NewInvocation(0, lp.Host, lp.Port, lib.FunctionName(), []interface{}{sn, cp})
-	requestor := RequestorImpl{}
-	_, err = requestor.Invoke(inv)
+	_, err = lp.requestor.Invoke(inv)
 	if err != nil {
 		return err
 	}
@@ -22,18 +27,19 @@ func (lp LookupProxy) Bind(sn string, cp common.ClientProxy) (err error) {
 
 func (lp LookupProxy) Lookup(serviceName string) (cp common.ClientProxy, err error) {
 	inv := *NewInvocation(0, lp.Host, lp.Port, lib.FunctionName(), []interface{}{serviceName})
-	requestor := RequestorImpl{}
-	termination, err := requestor.Invoke(inv)
+	termination, err := lp.requestor.Invoke(inv)
 	if err != nil {
 		return cp, err
 	}
 
-	clientProxyMap := termination.Result.(map[string]interface{})
-	cp = common.ClientProxy{clientProxyMap["Ip"].(string), int(clientProxyMap["Port"].(float64)), int(clientProxyMap["ObjectId"].(float64))}
+	err = mapstructure.Decode(termination.Result, &cp)
+	if err != nil {
+		return cp, err
+	}
 
 	return cp, nil
 }
 
-func NewLookupProxy(host string, port int) *LookupProxy {
-	return &LookupProxy{host, port}
+func (lp LookupProxy) Close() error {
+	return lp.requestor.Close()
 }

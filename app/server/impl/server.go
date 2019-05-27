@@ -2,6 +2,7 @@ package impl
 
 import (
 	"jankenpo/shared"
+	"middleware/lib"
 	"middleware/lib/dist"
 	"middleware/lib/services/common"
 	"sync"
@@ -10,7 +11,7 @@ import (
 const NAME = "jankenpo/mid/server"
 
 /*func waitForConection(inv rpc.RPC, idx int) {
-	shared.PrintlnInfo(NAME, "Connection", strconv.Itoa(idx), "started")
+	lib.PrintlnInfo(NAME, "Connection", strconv.Itoa(idx), "started")
 
 	// fecha o socket
 	defer rpc.CloseConnection()
@@ -18,18 +19,22 @@ const NAME = "jankenpo/mid/server"
 	// aceita conexões na porta
 	rpc.WaitForConnection(idx)
 
-	shared.PrintlnInfo(NAME, "Servidor finalizado (MyMiddleware)")
-	shared.PrintlnInfo(NAME, "Connection", strconv.Itoa(idx), "ended")
+	lib.PrintlnInfo(NAME, "Servidor finalizado (MyMiddleware)")
+	lib.PrintlnInfo(NAME, "Connection", strconv.Itoa(idx), "ended")
 }*/
 
 func StartJankenpoServer() {
 	var wg sync.WaitGroup
-	shared.PrintlnInfo(NAME, "Initializing server MyMiddleware")
+	lib.PrintlnInfo(NAME, "Initializing server MyMiddleware")
 
-	lp := dist.LookupProxy{shared.NAME_SERVER_IP, shared.NAME_SERVER_PORT}
+	lp := dist.NewLookupProxy(shared.NAME_SERVER_IP, shared.NAME_SERVER_PORT)
 	err := lp.Bind("jankenpo", common.ClientProxy{"127.0.0.1", shared.MID_PORT, 1500})
 	if err != nil {
-		shared.PrintlnError(NAME, "Error at lookup")
+		lib.PrintlnError(NAME, "Error at lookup")
+	}
+	err = lp.Close()
+	if err != nil {
+		lib.PrintlnError(NAME, "Error at closing lookup")
 	}
 
 	// escuta na porta tcp configurada
@@ -48,5 +53,5 @@ func StartJankenpoServer() {
 		}(idx)
 	}*/
 	wg.Wait()
-	shared.PrintlnInfo(NAME, "Fim do Servidor MyMiddleware")
+	lib.PrintlnInfo(NAME, "Fim do Servidor MyMiddleware")
 }

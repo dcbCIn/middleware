@@ -18,4 +18,5 @@ type Termination struct {
 
 type Requestor interface {
 	Invoke(inv Invocation) (t Termination, err error)
+	Close() error
 }

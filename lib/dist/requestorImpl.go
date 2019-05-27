@@ -1,7 +1,7 @@
 package dist
 
 import (
-	"jankenpo/shared"
+	"middleware/lib"
 	"middleware/lib/infra/client"
 )
 
@@ -14,8 +14,7 @@ func NewRequestorImpl(ipAddress string, portNumber int) *RequestorImpl {
 	return &RequestorImpl{*client.NewClientRequestHandlerImpl(ipAddress, portNumber)}
 }
 
-func (r RequestorImpl) Invoke(inv Invocation) (t Termination, err error) {
-
+func (r *RequestorImpl) Invoke(inv Invocation) (t Termination, err error) {
 	requestHeader := RequestHeader{inv.IpAddress, inv.ObjectId, true, inv.ObjectId, inv.OperationName}
 	requestBody := RequestBody{inv.Parameters}
 
@@ -46,8 +45,12 @@ func (r RequestorImpl) Invoke(inv Invocation) (t Termination, err error) {
 
 	// Todo check if replyStatus of the message is valid
 
-	shared.PrintlnInfo("RequestorImpl", "RequestorImpl.Invoke - Reply recebido e unmarshalled")
+	lib.PrintlnInfo("RequestorImpl", "RequestorImpl.Invoke - Reply recebido e unmarshalled")
 	t = Termination{msgReturned.Body.ReplyBody}
 
 	return t, err
+}
+
+func (r *RequestorImpl) Close() error {
+	return r.crh.Close()
 }

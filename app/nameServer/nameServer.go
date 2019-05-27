@@ -2,13 +2,14 @@ package main
 
 import (
 	"jankenpo/shared"
+	"middleware/lib"
 	"middleware/lib/dist"
 	"sync"
 )
 
 func main() {
 	var wg sync.WaitGroup
-	shared.PrintlnInfo("nameServer", "Initializing server MyMiddleware(NameServer)")
+	lib.PrintlnInfo("nameServer", "Initializing server MyMiddleware(NameServer)")
 
 	// escuta na porta tcp configurada
 	var inv dist.InvokerImpl
@@ -24,5 +25,5 @@ func main() {
 		}(idx)
 	}*/
 	wg.Wait()
-	shared.PrintlnInfo("nameServer", "Fim do Servidor MyMiddleware(NameServer)")
+	lib.PrintlnInfo("nameServer", "Fim do Servidor MyMiddleware(NameServer)")
 }
