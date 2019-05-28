@@ -35,7 +35,9 @@ func (l *Lookup) Bind(sn string, cp ClientProxy) (err error) {
 func (l Lookup) Lookup(serviceName string) (cp ClientProxy, err error) {
 	lib.PrintlnInfo("Lookup", "Service lookup =", serviceName)
 	for _, nr := range l.services {
-		return nr.clientProxy, nil
+		if nr.serviceName == serviceName {
+			return nr.clientProxy, nil
+		}
 	}
 	return ClientProxy{}, nil
 }
